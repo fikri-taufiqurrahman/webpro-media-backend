@@ -1,7 +1,6 @@
 import { Follow, User } from "../models/index.js";
 
 
-// Menambahkan following
 export const addFollowing = async (req, res) => {
     try {
         const { followingId } = req.body; 
@@ -73,6 +72,46 @@ export const deleteFollower = async (req, res) => {
         });
 
         res.status(200).json({ message: "Successfully removed follower" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server error" });
+    }
+};
+
+// Mendapatkan daftar followers
+export const followersList = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const followers = await Follow.findAll({
+            where: { followingId: userId },  
+            include: [{
+                model: User,  
+                as: "Follower",  // Alias yang benar
+                attributes: ['id', 'username', 'profilePicture'],  
+            }]
+        });
+
+        res.status(200).json({ followers });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server error" });
+    }
+};
+
+// Mendapatkan daftar following
+export const followingList = async (req, res) => {
+    try {
+        const { userId } = req.params; 
+        const following = await Follow.findAll({
+            where: { followerId: userId },  
+            include: [{
+                model: User,  
+                as: "Following",  // Alias yang benar
+                attributes: ['id', 'username', 'profilePicture'],  
+            }]
+        });
+
+        res.status(200).json({ following });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Server error" });

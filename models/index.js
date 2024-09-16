@@ -234,6 +234,18 @@ Story.belongsTo(User, { foreignKey: "userId" });
 User.hasMany(Follow, { as: "Followers", foreignKey: "followerId" });
 User.hasMany(Follow, { as: "Following", foreignKey: "followingId" });
 
+
+// Follow Model
+Follow.belongsTo(User, {
+  foreignKey: "followerId",
+  as: "Follower",  // Alias untuk pengguna yang mengikuti
+});
+
+Follow.belongsTo(User, {
+  foreignKey: "followingId",
+  as: "Following",  // Alias untuk pengguna yang diikuti
+});
+
 User.hasMany(Message, { as: "SentMessages", foreignKey: "senderId" });
 User.hasMany(Message, { as: "ReceivedMessages", foreignKey: "receiverId" });
 

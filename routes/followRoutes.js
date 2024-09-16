@@ -3,7 +3,9 @@ import { authMiddleware } from "../middleware/authMiddleware.js";
 import {
     addFollowing,
     deleteFollowing,
-    deleteFollower
+    deleteFollower,
+    followersList,
+    followingList
   } from "../controllers/followControllers.js";
 
   const router = express.Router();
@@ -11,7 +13,7 @@ import {
   router.post("/following",authMiddleware, addFollowing)
   router.delete('/following/:followingId',authMiddleware, deleteFollowing)
   router.delete("/follower/:followerId", authMiddleware ,deleteFollower)
-
-
+  router.get("/followers/:userId", authMiddleware, followersList)
+  router.get("/following/:userId", authMiddleware, followingList)
 
   export default router;
