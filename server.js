@@ -4,6 +4,8 @@ import { connectDB } from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import postRoutes from "./routes/postRoutes.js";
+import followRoutes from "./routes/followRoutes.js";
+
 
 import path from "path";
 
@@ -18,7 +20,7 @@ app.use("/uploads", express.static(uploadsPath));
 connectDB();
 
 // Routes
-app.use("/", authRoutes, userRoutes, postRoutes);
+app.use("/", authRoutes, userRoutes, postRoutes, followRoutes);
 
 // Start server
 const PORT = process.env.PORT || 5000;
