@@ -2,6 +2,8 @@ import { User } from "../models/index.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
+import { google } from "googleapis";
+import { v4 as uuidv4 } from 'uuid';
 
 // Register User
 export const register = async (req, res) => {
@@ -129,5 +131,79 @@ export const resetPassword = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error" });
+  }
+};
+
+
+// login with google
+// Konfigurasi OAuth 2.0 Google
+const oauth2Client = new google.auth.OAuth2(
+  process.env.GOOGLE_CLIENT_ID,
+  process.env.GOOGLE_CLIENT_SECRET,
+  'http://localhost:5000/auth/google/callback'
+);
+
+const scopes = [
+  'https://www.googleapis.com/auth/userinfo.email',
+  'https://www.googleapis.com/auth/userinfo.profile'
+];
+
+// URL untuk otorisasi Google
+const authorizationUrl = oauth2Client.generateAuthUrl({
+  access_type: 'offline',
+  scope: scopes,
+  include_granted_scopes: true,
+});
+
+// Login menggunakan Google
+export const googleLogin = (req, res) => {
+  res.redirect(authorizationUrl);
+};
+
+// Callback setelah login Google berhasil
+export const googleCallback = async (req, res) => {
+  const { code } = req.query;
+
+  try {
+    // Ambil token akses menggunakan kode otorisasi
+    const { tokens } = await oauth2Client.getToken(code);
+    oauth2Client.setCredentials(tokens);
+
+    // Dapatkan informasi user dari Google
+    const oauth2 = google.oauth2({
+      auth: oauth2Client,
+      version: 'v2'
+    });
+
+    const { data } = await oauth2.userinfo.get();
+
+    if (!data.email || !data.name) {
+      return res.status(400).json({ message: 'Email atau nama tidak ditemukan' });
+    }
+
+    // Cek apakah user sudah ada berdasarkan email
+    let user = await User.findOne({ where: { email: data.email } });
+
+    // Jika user belum ada, buat user baru
+    if (!user) {
+      const username = `${data.name.replace(/\s+/g, '').toLowerCase()}${uuidv4().slice(0, 4)}`;
+
+      user = await User.create({
+        username: username,
+        name: data.name,
+        email: data.email,
+        profilePicture:  "/uploads/profilePicture/default.jpg",
+        password: bcrypt.hashSync(data.id, 10), // Password di-hash menggunakan id Google
+      });
+    }
+
+    // Generate JWT token
+    const payload = { id: user.id, name: user.name, email: user.email };
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+    return res.json({ token, user });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Google login failed' });
   }
 };
