@@ -2,6 +2,7 @@ import express from "express";
 import { authMiddleware } from "../middleware/authMiddleware.js";
 import { uploadPost } from "../middleware/uploadMiddleware.js";
 import {
+  getAllFollowingPost,
   addPost,
   getOnePostById,
   updatePost,
@@ -15,6 +16,8 @@ import {
 } from "../controllers/postControllers.js";
 
 const router = express.Router();
+
+router.get("/post", authMiddleware, getAllFollowingPost);
 
 router.post("/post", authMiddleware, uploadPost.single("postContent"), addPost);
 router.get("/post/:postId", getOnePostById);

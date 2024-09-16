@@ -1,4 +1,67 @@
 import { Like, Post, User, Comment } from "../models/index.js";
+import { Op } from 'sequelize';
+export const getAllFollowingPost = async (req, res) => {
+    try {
+      const { id: userId } = req.user;  
+  
+      const followingUsers = await Follow.findAll({
+        where: { followerId: userId },
+        attributes: ['followingId'],  
+      });
+  
+      if (followingUsers.length === 0) {
+        return res.status(200).json({ message: "You are not following anyone", posts: [] });
+      }
+  
+      const followingIds = followingUsers.map(follow => follow.followingId);
+  
+      const posts = await Post.findAll({
+        where: {
+          userId: { [Op.in]: followingIds }, 
+        },
+        attributes: {
+          include: [
+            [
+              sequelize.literal(`(
+                SELECT COUNT(*)
+                FROM Likes AS like
+                WHERE like.postId = Post.id
+              )`),
+              'totalLikes'
+            ],
+            [
+              sequelize.literal(`(
+                SELECT COUNT(*)
+                FROM Comments AS comment
+                WHERE comment.postId = Post.id
+              )`),
+              'totalComments'
+            ]
+          ]
+        },
+        include: [
+          {
+            model: User,  
+            attributes: ['id', 'username', 'profilePicture']
+          },
+          {
+            model: Comment,  
+            attributes: ['id', 'commentText', 'createdAt'],
+            include: [{
+              model: User,
+              attributes: ['id', 'username', 'profilePicture'],  
+            }]
+          }
+        ],
+        order: [['createdAt', 'DESC']]  
+      });
+  
+      res.status(200).json({ posts });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Server error" });
+    }
+  };
 
 export const addPost = async (req, res) => {
   try {
