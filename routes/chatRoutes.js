@@ -1,10 +1,10 @@
 import express from "express";
 import { sendMessage, getMessages } from "../controllers/chatController.js";
+import { authMiddleware } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-// Route untuk mengirim pesan
-router.post("/chat", sendMessage);
+router.post("/chat", authMiddleware, sendMessage);
 
 // Route untuk mendapatkan semua pesan antara dua pengguna
 router.get("/chat/:senderId/:receiverId", getMessages);

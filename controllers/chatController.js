@@ -1,27 +1,26 @@
 import { Message, User } from "../models/index.js";
 
-// Mengirim pesan baru
 export const sendMessage = async (req, res) => {
-  const { senderId, receiverId, messageText } = req.body;
-
-  try {
-    // Validasi input
-    if (!senderId || !receiverId || !messageText) {
-      return res.status(400).json({ message: "Semua data harus diisi." });
-    }
-
-    // Buat pesan baru
-    const newMessage = await Message.create({
-      senderId,
-      receiverId,
-      messageText,
+    const { receiverId, messageText } = req.body;
+    const {id : senderId} = req.user;  // Mengambil senderId dari req.user yang sudah diverifikasi oleh authMiddleware
+    console.log(senderId)
+    const io = req.io;  
+    try {
+      const newMessage = await Message.create({
+        senderId,
+        receiverId,
+        messageText,
+      });
+     
+      io.to(receiverId).emit('chat message', {
+        senderId,
+        messageText,
+        createdAt: newMessage.createdAt,  
     });
-
-    return res.status(201).json(newMessage);
-  } catch (error) {
-    console.error("Error mengirim pesan:", error);
-    return res.status(500).json({ message: "Gagal mengirim pesan." });
-  }
+      res.status(201).json(newMessage);  
+    } catch (error) {
+      res.status(500).json({ message: 'Gagal mengirim pesan', error });
+    }
 };
 
 // Mendapatkan semua pesan antara dua pengguna
