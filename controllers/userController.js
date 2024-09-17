@@ -1,6 +1,10 @@
 import { User, Post, Follow } from "../models/index.js";
 import fs from "fs/promises";
 import path from "path";
+import { Op } from "sequelize";
+
+
+
 export const getUserByUsername = async (req, res) => {
   try {
     const { username } = req.params;
@@ -87,5 +91,39 @@ export const updateUserProfile = async (req, res) => {
     // Log error dan kirim respon 500
     console.error(error);
     res.status(500).json({ message: "Server error" });
+  }
+};
+
+
+export const searchUser = async (req, res) => {
+  const { username } = req.params;
+
+  try {
+    // Cari pengguna berdasarkan username yang mirip dengan input
+    const users = await User.findAll({
+      where: {
+        username: {
+          [Op.like]: `%${username}%`, // Mencari username yang mengandung kata kunci
+        },
+      },
+      attributes: ['id', 'username', 'name', 'profilePicture'], // Pilih field yang ingin ditampilkan
+    });
+
+    if (users.length === 0) {
+      return res.status(404).json({
+        message: 'No users found',
+      });
+    }
+
+    return res.status(200).json({
+      message: 'Users found',
+      users,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: 'Error searching users',
+      error: error.message,
+    });
   }
 };
