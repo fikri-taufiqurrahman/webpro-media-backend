@@ -4,13 +4,16 @@ import { uploadStory } from "../middleware/uploadMiddleware.js";
 import {
   addStory,
   deleteStory,
-} from "../controllers/postControllers.js";
+  getStoriesFollowingOnly,
+  seenStory,
+} from "../controllers/storyController.js";
 
 const router = express.Router();
 
-
+router.get('/story', authMiddleware, getStoriesFollowingOnly)
 router.post('/story', authMiddleware, uploadStory("storyContent"), addStory)
 router.delete('/story', authMiddleware, deleteStory)
+router.post("/seen-story", authMiddleware, seenStory)
 
 
 

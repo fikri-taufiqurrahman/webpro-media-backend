@@ -1,4 +1,57 @@
 import { Story, User, Viewer } from "../models/index.js";
+import { Op } from "sequelize";
+
+export const getStoriesFollowingOnly = async (req, res) => {
+  const { id: userId } = req.user;
+
+  try {
+    // Ambil daftar pengguna yang diikuti
+    const following = await Follow.findAll({
+      where: {
+        followerId: userId,
+      },
+      attributes: ['followingId'],
+    });
+
+    const followingIds = following.map(f => f.followingId);
+
+    if (followingIds.length === 0) {
+      return res.status(200).json({
+        message: 'No stories available',
+        stories: [],
+      });
+    }
+
+    // Ambil story dari pengguna yang diikuti, pastikan belum expired
+    const stories = await Story.findAll({
+      where: {
+        userId: {
+          [Op.in]: followingIds,
+        },
+        expireAt: {
+          [Op.gt]: new Date(), // Story yang belum expired
+        },
+      },
+      include: [{
+        model: User,
+        attributes: ['id', 'username', 'profilePicture'],
+      }],
+      order: [['createdAt', 'DESC']],
+    });
+
+    return res.status(200).json({
+      message: 'Stories fetched successfully',
+      stories,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: 'Error fetching stories',
+      error: error.message,
+    });
+  }
+};
+
 
 export const addStory = async (req, res) => {
     const { content } = req.body;
@@ -64,3 +117,57 @@ export const deleteStory = async (req, res) => {
       });
     }
   };
+
+
+  export const seenStory = async (req, res) => {
+    const { storyId } = req.body;
+    const { id: userId } = req.user;
+  
+    try {
+      const story = await Story.findOne({
+        where: {
+          id: storyId,
+          expireAt: {
+            [Op.gt]: new Date() 
+          }
+        }
+      });
+  
+      if (!story) {
+        return res.status(404).json({
+          message: 'Story not found or has expired',
+        });
+      }
+  
+      const existingViewer = await Viewer.findOne({
+        where: {
+          storyId,
+          userId,
+        }
+      });
+  
+      if (existingViewer) {
+        return res.status(200).json({
+          message: 'Story already seen',
+        });
+      }
+  
+      const newViewer = await Viewer.create({
+        storyId,
+        userId,
+        viewedAt: new Date(),
+      });
+  
+      return res.status(201).json({
+        message: 'Story seen successfully',
+        viewer: newViewer,
+      });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({
+        message: 'Error marking story as seen',
+        error: error.message,
+      });
+    }
+  };
+  
