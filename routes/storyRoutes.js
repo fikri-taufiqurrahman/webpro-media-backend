@@ -4,7 +4,7 @@ import { uploadStory } from "../middleware/uploadMiddleware.js";
 import {
   addStory,
   deleteStory,
-  getStoriesFollowingOnly,
+  getFollowingStories,
   seenStory,
 } from "../controllers/storyController.js";
 
