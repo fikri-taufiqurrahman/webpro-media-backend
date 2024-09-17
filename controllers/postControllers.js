@@ -170,6 +170,7 @@ export const deletePost = async (req, res) => {
   try {
     const { id: userId } = req.user;
     const { postId } = req.params;
+
     const post = await Post.findOne({
       where: { id: postId, userId: userId },
     });
@@ -178,19 +179,9 @@ export const deletePost = async (req, res) => {
       return res.status(404).json({ message: "Post not found" });
     }
 
-    await Like.destroy({
-      where: { postId: post.id },
-    });
-
-    await Comment.destroy({
-      where: { postId: post.id },
-    });
-
     await post.destroy();
 
-    res
-      .status(200)
-      .json({ message: "Post and related data deleted successfully" });
+    res.status(200).json({ message: "Post and related data deleted successfully" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error" });

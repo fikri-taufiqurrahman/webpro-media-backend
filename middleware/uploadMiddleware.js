@@ -70,3 +70,9 @@ export const uploadPost = multer({
   limits: { fileSize: 20 * 1024 * 1024 },
   fileFilter: photoVideoFilter,
 });
+
+export const uploadStory = multer({
+  storage,
+  limits: { fileSize: 20 * 1024 * 1024 },
+  fileFilter: photoVideoFilter,
+})

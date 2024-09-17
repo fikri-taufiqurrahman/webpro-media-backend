@@ -153,6 +153,37 @@ const Story = sequelize.define(
   },
 );
 
+const Viewer = sequelize.define(
+  "Viewer",
+  {
+    storyId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: Story,
+        key: "id",
+      },
+    },
+    userId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: User,
+        key: "id",
+      },
+    },
+    viewedAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
+    },
+  },
+  {
+    timestamps: false,  
+  }
+);
+
+
 // Follow Model
 const Follow = sequelize.define(
   "Follow",
@@ -216,20 +247,26 @@ Post.belongsTo(User, { foreignKey: "userId" });
 User.hasMany(Comment, { foreignKey: "userId" });
 Comment.belongsTo(User, { foreignKey: "userId" });
 
-Post.hasMany(Comment, { foreignKey: "postId" });
-Comment.belongsTo(Post, { foreignKey: "postId" });
+Post.hasMany(Comment, { foreignKey: 'postId', onDelete: 'CASCADE' });
+Comment.belongsTo(Post, { foreignKey: 'postId' });
 
 User.hasMany(Like, { foreignKey: "userId" });
 Like.belongsTo(User, { foreignKey: "userId" });
 
-Post.hasMany(Like, { foreignKey: "postId" });
-Like.belongsTo(Post, { foreignKey: "postId" });
+Post.hasMany(Like, { foreignKey: 'postId', onDelete: 'CASCADE' });
+Like.belongsTo(Post, { foreignKey: 'postId' });
 
-Comment.hasMany(Like, { foreignKey: "commentId" });
-Like.belongsTo(Comment, { foreignKey: "commentId" });
+Comment.hasMany(Like, { foreignKey: 'commentId', onDelete: 'CASCADE' });
+Like.belongsTo(Comment, { foreignKey: 'commentId' });
 
 User.hasMany(Story, { foreignKey: "userId" });
 Story.belongsTo(User, { foreignKey: "userId" });
+
+Story.hasMany(Viewer, { foreignKey: 'storyId', onDelete: 'CASCADE' });
+Viewer.belongsTo(Story, { foreignKey: 'storyId' });
+
+User.hasMany(Viewer, { foreignKey: 'userId', onDelete: 'CASCADE' });
+Viewer.belongsTo(User, { foreignKey: 'userId' });
 
 User.hasMany(Follow, { as: "Followers", foreignKey: "followerId" });
 User.hasMany(Follow, { as: "Following", foreignKey: "followingId" });
@@ -251,4 +288,4 @@ User.hasMany(Message, { as: "ReceivedMessages", foreignKey: "receiverId" });
 Message.belongsTo(User, { as: "Sender", foreignKey: "senderId" });
 Message.belongsTo(User, { as: "Receiver", foreignKey: "receiverId" });
 
-export { User, Post, Comment, Like, Story, Follow, Message };
+export { User, Post, Comment, Like, Story, Viewer, Follow, Message };
