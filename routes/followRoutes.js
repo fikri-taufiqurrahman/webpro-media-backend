@@ -13,7 +13,7 @@ import {
   router.post("/following",authMiddleware, addFollowing)
   router.delete('/following/:followingId',authMiddleware, deleteFollowing)
   router.delete("/follower/:followerId", authMiddleware ,deleteFollower)
-  router.get("/follower/:userId", authMiddleware, followersList)
-  router.get("/following/:userId", authMiddleware, followingList)
+  router.get("/follower", authMiddleware, followersList)
+  router.get("/following", authMiddleware, followingList)
 
   export default router;

@@ -81,7 +81,7 @@ export const deleteFollower = async (req, res) => {
 // Mendapatkan daftar followers
 export const followersList = async (req, res) => {
     try {
-        const { userId } = req.params;
+        const { id: userId } = req.user;
         const followers = await Follow.findAll({
             where: { followingId: userId },  
             include: [{
@@ -101,7 +101,7 @@ export const followersList = async (req, res) => {
 // Mendapatkan daftar following
 export const followingList = async (req, res) => {
     try {
-        const { userId } = req.params; 
+        const { id:userId } = req.user; 
         const following = await Follow.findAll({
             where: { followerId: userId },  
             include: [{
