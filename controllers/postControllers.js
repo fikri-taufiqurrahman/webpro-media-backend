@@ -1,6 +1,6 @@
 import { Like, Post, User, Comment } from "../models/index.js";
 import { Op } from 'sequelize';
-export const getAllFollowingPost = async (req, res) => {
+export const getFollowingPost = async (req, res) => {
     try {
       const { id: userId } = req.user;  
   

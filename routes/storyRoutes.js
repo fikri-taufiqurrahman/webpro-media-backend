@@ -10,7 +10,7 @@ import {
 
 const router = express.Router();
 
-router.get('/story', authMiddleware, getStoriesFollowingOnly)
+router.get('/story', authMiddleware, getFollowingStories)
 router.post('/story', authMiddleware, uploadStory("storyContent"), addStory)
 router.delete('/story', authMiddleware, deleteStory)
 router.post("/seen-story", authMiddleware, seenStory)

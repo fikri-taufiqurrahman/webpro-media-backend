@@ -1,7 +1,7 @@
 import { Story, User, Viewer } from "../models/index.js";
 import { Op } from "sequelize";
 
-export const getStoriesFollowingOnly = async (req, res) => {
+export const getFollowingStories = async (req, res) => {
   const { id: userId } = req.user;
 
   try {
