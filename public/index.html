@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Test</title>
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+    <h1>Chat Test</h1>
+    <div id="messages"></div>
+    <input id="messageInput" placeholder="Type your message" />
+    <button id="sendBtn">Send</button>
+
+    <script>
+        const socket = io();  // Membuat koneksi dengan server Socket.io
+
+        const messageInput = document.getElementById("messageInput");
+        const sendBtn = document.getElementById("sendBtn");
+        const messagesDiv = document.getElementById("messages");
+
+        // Saat tombol "Send" diklik, kirim pesan ke server
+        sendBtn.addEventListener("click", () => {
+            const messageText = messageInput.value;
+            const msg = {
+                senderId: 1, // Id sender (ganti sesuai)
+                receiverId: 6, // Id receiver (ganti sesuai)
+                messageText
+            };
+            socket.emit('chat message', msg); // Kirim pesan ke server
+        });
+
+        // Menerima pesan dari server dan menampilkannya di halaman
+        socket.on('chat message', (msg) => {
+            const newMessage = document.createElement('p');
+            newMessage.textContent = `Message from ${msg.senderId}: ${msg.messageText}`;
+            messagesDiv.appendChild(newMessage);
+        });
+    </script>
+</body>
+</html>

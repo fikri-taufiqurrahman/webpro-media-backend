@@ -207,3 +207,4 @@ export const googleCallback = async (req, res) => {
     res.status(500).json({ message: 'Google login failed' });
   }
 };
+
