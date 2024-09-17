@@ -1,5 +1,5 @@
 import { Message, User } from "../models/index.js";
-
+import { Op } from "sequelize";
 export const sendMessage = async (req, res) => {
     const { receiverId, messageText } = req.body;
     const {id : senderId} = req.user;  // Mengambil senderId dari req.user yang sudah diverifikasi oleh authMiddleware
@@ -25,7 +25,8 @@ export const sendMessage = async (req, res) => {
 
 // Mendapatkan semua pesan antara dua pengguna
 export const getMessages = async (req, res) => {
-  const { senderId, receiverId } = req.params;
+  const { id: senderId} = req.user
+  const { receiverId } = req.params;
 
   try {
     // Validasi input

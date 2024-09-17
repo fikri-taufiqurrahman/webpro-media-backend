@@ -7,6 +7,6 @@ const router = express.Router();
 router.post("/chat", authMiddleware, sendMessage);
 
 // Route untuk mendapatkan semua pesan antara dua pengguna
-router.get("/chat/:senderId/:receiverId", getMessages);
+router.get("/chat/:receiverId", authMiddleware, getMessages);
 
 export default router;
