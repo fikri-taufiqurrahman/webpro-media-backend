@@ -1,16 +1,28 @@
 import multer from "multer";
-import path from "path";
+import multerS3 from "multer-s3";
+import { S3Client } from "@aws-sdk/client-s3";
 import { v4 as uuidv4 } from "uuid";
+import path from "path";
 
-// Setup penyimpanan multer
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, `uploads/${file.fieldname}/`);
+// Setup s3 client
+const s3 = new S3Client({
+  region: process.env.AWS_REGION,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   },
-  filename: (req, file, cb) => {
-    // Menghasilkan UUID untuk memastikan nama file unik
-    const uniqueName = `${uuidv4()}-${Date.now()}${path.extname(file.originalname)}`;
-    cb(null, uniqueName); // Simpan nama file yang unik
+});
+
+// Setup storage s3
+const storage = multerS3({
+  s3,
+  bucket: process.env.AWS_S3_BUCKET_NAME,
+  metadata: function (req, file, cb) {
+    cb(null, { fieldName: file.fieldname });
+  },
+  key: function (req, file, cb) {
+    const uniqueName = `${file.fieldname}/${uuidv4()}-${Date.now()}${path.extname(file.originalname)}`;
+    cb(null, uniqueName);
   },
 });
 
@@ -75,4 +87,4 @@ export const uploadStory = multer({
   storage,
   limits: { fileSize: 20 * 1024 * 1024 },
   fileFilter: photoVideoFilter,
-})
+});
