@@ -1,76 +1,80 @@
 import { Like, Post, User, Comment } from "../models/index.js";
-import { Op } from 'sequelize';
+import { Op } from "sequelize";
 export const getFollowingPost = async (req, res) => {
-    try {
-      const { id: userId } = req.user;  
-  
-      const followingUsers = await Follow.findAll({
-        where: { followerId: userId },
-        attributes: ['followingId'],  
-      });
-  
-      if (followingUsers.length === 0) {
-        return res.status(200).json({ message: "You are not following anyone", posts: [] });
-      }
-  
-      const followingIds = followingUsers.map(follow => follow.followingId);
-  
-      const posts = await Post.findAll({
-        where: {
-          userId: { [Op.in]: followingIds }, 
-        },
-        attributes: {
-          include: [
-            [
-              sequelize.literal(`(
+  try {
+    const { id: userId } = req.user;
+
+    const followingUsers = await Follow.findAll({
+      where: { followerId: userId },
+      attributes: ["followingId"],
+    });
+
+    if (followingUsers.length === 0) {
+      return res
+        .status(200)
+        .json({ message: "You are not following anyone", posts: [] });
+    }
+
+    const followingIds = followingUsers.map((follow) => follow.followingId);
+
+    const posts = await Post.findAll({
+      where: {
+        userId: { [Op.in]: followingIds },
+      },
+      attributes: {
+        include: [
+          [
+            sequelize.literal(`(
                 SELECT COUNT(*)
                 FROM Likes AS like
                 WHERE like.postId = Post.id
               )`),
-              'totalLikes'
-            ],
-            [
-              sequelize.literal(`(
+            "totalLikes",
+          ],
+          [
+            sequelize.literal(`(
                 SELECT COUNT(*)
                 FROM Comments AS comment
                 WHERE comment.postId = Post.id
               )`),
-              'totalComments'
-            ]
-          ]
-        },
-        include: [
-          {
-            model: User,  
-            attributes: ['id', 'username', 'profilePicture']
-          },
-          {
-            model: Comment,  
-            attributes: ['id', 'commentText', 'createdAt'],
-            include: [{
-              model: User,
-              attributes: ['id', 'username', 'profilePicture'],  
-            }]
-          }
+            "totalComments",
+          ],
         ],
-        order: [['createdAt', 'DESC']]  
-      });
-  
-      res.status(200).json({ posts });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: "Server error" });
-    }
-  };
+      },
+      include: [
+        {
+          model: User,
+          attributes: ["id", "username", "profilePicture"],
+        },
+        {
+          model: Comment,
+          attributes: ["id", "commentText", "createdAt"],
+          include: [
+            {
+              model: User,
+              attributes: ["id", "username", "profilePicture"],
+            },
+          ],
+        },
+      ],
+      order: [["createdAt", "DESC"]],
+    });
+
+    res.status(200).json({ posts });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
 
 export const addPost = async (req, res) => {
   try {
     const { id } = req.user;
-    const { content, description } = req.body;
-    let postContent = content;
-    console.log(req.body);
+    const { description } = req.body;
+    let postContent = null;
+
     if (req.file) {
-      postContent = `/uploads/${req.file.fieldname}/${req.file.filename}`;
+      postContent = req.file.location;
     }
 
     const post = await Post.create({
@@ -123,7 +127,7 @@ export const getOnePostById = async (req, res) => {
           ...comment.toJSON(),
           likeCommentCount,
         };
-      }),
+      })
     );
 
     res.json({
@@ -181,7 +185,9 @@ export const deletePost = async (req, res) => {
 
     await post.destroy();
 
-    res.status(200).json({ message: "Post and related data deleted successfully" });
+    res
+      .status(200)
+      .json({ message: "Post and related data deleted successfully" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error" });
@@ -311,37 +317,39 @@ export const likeComment = async (req, res) => {
 };
 
 export const cancelLikeComment = async (req, res) => {
-    try {
-        const { id: userId } = req.user; // Mendapatkan userId dari token autentikasi
-        const { commentId } = req.params; // Mengambil commentId dari parameter URL
-    
-        // Verifikasi apakah komentar yang ingin di-unlike ada
-        const comment = await Comment.findByPk(commentId);
-        if (!comment) {
-          return res.status(404).json({ message: "Comment not found" });
-        }
-    
-        // Cek apakah pengguna sudah menyukai komentar ini
-        const existingLike = await Like.findOne({
-          where: {
-            commentId,
-            userId,
-          },
-        });
-    
-        if (!existingLike) {
-          return res.status(400).json({ message: "You have not liked this comment yet" });
-        }
-    
-        // Hapus like dari database
-        await existingLike.destroy();
-    
-        res.status(200).json({ message: "Comment like removed successfully" });
-      } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Server error" });
-      }
-  };
+  try {
+    const { id: userId } = req.user; // Mendapatkan userId dari token autentikasi
+    const { commentId } = req.params; // Mengambil commentId dari parameter URL
+
+    // Verifikasi apakah komentar yang ingin di-unlike ada
+    const comment = await Comment.findByPk(commentId);
+    if (!comment) {
+      return res.status(404).json({ message: "Comment not found" });
+    }
+
+    // Cek apakah pengguna sudah menyukai komentar ini
+    const existingLike = await Like.findOne({
+      where: {
+        commentId,
+        userId,
+      },
+    });
+
+    if (!existingLike) {
+      return res
+        .status(400)
+        .json({ message: "You have not liked this comment yet" });
+    }
+
+    // Hapus like dari database
+    await existingLike.destroy();
+
+    res.status(200).json({ message: "Comment like removed successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
 
 export const deleteComment = async (req, res) => {
   try {
@@ -356,12 +364,10 @@ export const deleteComment = async (req, res) => {
     });
 
     if (!comment) {
-      return res
-        .status(404)
-        .json({
-          message:
-            "Comment not found or you do not have permission to delete this comment",
-        });
+      return res.status(404).json({
+        message:
+          "Comment not found or you do not have permission to delete this comment",
+      });
     }
 
     await comment.destroy();

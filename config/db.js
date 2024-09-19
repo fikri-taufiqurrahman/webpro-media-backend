@@ -19,8 +19,12 @@ export const sequelize = new Sequelize(
     },
     dialectOptions: {
       connectTimeout: 60000,
+      ssl: {
+        require: true,
+        rejectUnauthorized: false,
+      },
     },
-  },
+  }
 );
 
 export const connectDB = async () => {
