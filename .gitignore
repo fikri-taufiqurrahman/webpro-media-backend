@@ -3,6 +3,9 @@
 node_modules/
 *.log
 
+.docker-compose.yml
+
+
 # Ignore Docker build files
 *.tar
 *.img
