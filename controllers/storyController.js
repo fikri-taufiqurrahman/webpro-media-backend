@@ -171,8 +171,10 @@ export const deleteStory = async (req, res) => {
     }
   };
 
+
+  export const getSeenStory = async (req, res) => {
+    const { storyId } = req.params;  
   
-  const getSeenStory = async (storyId) => {
     try {
       const viewers = await Viewer.findAll({
         where: {
@@ -181,16 +183,19 @@ export const deleteStory = async (req, res) => {
         include: [
           {
             model: User,
-            attributes: ['id', 'username', 'name', 'profilePicture'], 
+            attributes: ['id', 'username', 'name', 'profilePicture'],  // Ambil field yang diperlukan dari User
           },
         ],
       });
   
-      return viewers; 
+      if (viewers.length === 0) {
+        return res.status(404).json({ message: 'No viewers found for this story.' });
+      }
+  
+      return res.status(200).json(viewers);
     } catch (error) {
       console.error('Error fetching seen story data:', error);
-      throw error;
+      return res.status(500).json({ error: 'Internal Server Error' });
     }
   };
   
-  export default getSeenStory;

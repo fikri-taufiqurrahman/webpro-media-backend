@@ -15,7 +15,7 @@ router.get('/story', authMiddleware, getFollowingStories)
 router.post('/story', authMiddleware, uploadStory.single("storyContent"), addStory)
 router.delete('/story', authMiddleware, deleteStory)
 router.post("/seen-story", authMiddleware, addSeenStory)
-router.get("/seen-story", authMiddleware, getSeenStory)
+router.get("/seen-story/:storyId", authMiddleware, getSeenStory)
 
 
 
