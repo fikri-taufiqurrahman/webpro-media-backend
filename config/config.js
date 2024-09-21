@@ -1,4 +1,5 @@
 import dotenv from "dotenv";
+import mysql2 from "mysql2";
 dotenv.config();
 
 export default {
@@ -9,7 +10,7 @@ export default {
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,
     dialect: "mysql",
-    dialectModule: require("mysql2"),
+    dialectModule: mysql2,
     dialectOptions: {
       ssl: {
         require: true,
@@ -23,7 +24,7 @@ export default {
     database: "database_test",
     host: "127.0.0.1",
     dialect: "mysql",
-    dialectModule: require("mysql2"),
+    dialectModule: mysql2,
   },
   production: {
     username: process.env.DB_USER,
@@ -32,7 +33,7 @@ export default {
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,
     dialect: "mysql",
-    dialectModule: require("mysql2"),
+    dialectModule: mysql2,
     dialectOptions: {
       ssl: {
         require: true,
