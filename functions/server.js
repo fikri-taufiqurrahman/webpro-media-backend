@@ -2,13 +2,13 @@
 import express from "express";
 import dotenv from "dotenv";
 import path from "path";
-import { connectDB } from "./config/db.js";
-import authRoutes from "./routes/authRoutes.js";
-import userRoutes from "./routes/userRoutes.js";
-import postRoutes from "./routes/postRoutes.js";
-import followRoutes from "./routes/followRoutes.js";
-import chatRoutes from "./routes/chatRoutes.js";
-import storyRoutes from "./routes/storyRoutes.js";
+import { connectDB } from "../config/db.js";
+import authRoutes from "../routes/authRoutes.js";
+import userRoutes from "../routes/userRoutes.js";
+import postRoutes from "../routes/postRoutes.js";
+import followRoutes from "../routes/followRoutes.js";
+import chatRoutes from "../routes/chatRoutes.js";
+import storyRoutes from "../routes/storyRoutes.js";
 import cors from "cors";
 
 dotenv.config();
