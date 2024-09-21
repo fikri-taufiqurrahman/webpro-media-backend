@@ -5,16 +5,17 @@ import {
   addStory,
   deleteStory,
   getFollowingStories,
-  seenStory,
+  addSeenStory,
+  getSeenStory,
 } from "../controllers/storyController.js";
 
 const router = express.Router();
 
 router.get('/story', authMiddleware, getFollowingStories)
-router.post('/story', authMiddleware, uploadStory("storyContent"), addStory)
+router.post('/story', authMiddleware, uploadStory.single("storyContent"), addStory)
 router.delete('/story', authMiddleware, deleteStory)
-router.post("/seen-story", authMiddleware, seenStory)
-router.get("/seen-story", authMiddleware, )
+router.post("/seen-story", authMiddleware, addSeenStory)
+router.get("/seen-story", authMiddleware, getSeenStory)
 
 
 

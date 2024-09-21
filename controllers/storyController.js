@@ -119,7 +119,7 @@ export const deleteStory = async (req, res) => {
   };
 
 
-  export const seenStory = async (req, res) => {
+  export const addSeenStory = async (req, res) => {
     const { storyId } = req.body;
     const { id: userId } = req.user;
   
@@ -170,4 +170,27 @@ export const deleteStory = async (req, res) => {
       });
     }
   };
+
   
+  const getSeenStory = async (storyId) => {
+    try {
+      const viewers = await Viewer.findAll({
+        where: {
+          storyId: storyId,
+        },
+        include: [
+          {
+            model: User,
+            attributes: ['id', 'username', 'name', 'profilePicture'], 
+          },
+        ],
+      });
+  
+      return viewers; 
+    } catch (error) {
+      console.error('Error fetching seen story data:', error);
+      throw error;
+    }
+  };
+  
+  export default getSeenStory;
