@@ -23,7 +23,7 @@ export default {
     database: "database_test",
     host: "127.0.0.1",
     dialect: "mysql",
-    dialectModule: "mysql2", 
+    dialectModule: "mysql2",
   },
   production: {
     username: process.env.DB_USER,
@@ -32,7 +32,7 @@ export default {
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,
     dialect: "mysql",
-    dialectModule: "mysql2", 
+    dialectModule: "mysql2",
     dialectOptions: {
       ssl: {
         require: true,
