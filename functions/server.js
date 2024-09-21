@@ -17,11 +17,6 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-app.use((req, res, next) => {
-  req.io = io;
-  next();
-});
-
 const publicPath = path.resolve("./public");
 app.use("/public", express.static(publicPath));
 
